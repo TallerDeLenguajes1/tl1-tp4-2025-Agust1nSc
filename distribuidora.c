@@ -43,6 +43,8 @@ void *CrearTarea(Nodo **lista, int *idActual);
 void MostrarLista(Nodo *lista);
 void TransferirTarea(Nodo **pendientes, Nodo **realizadas);
 void MarcarTareaComoRealizada(Nodo **pendientes, Nodo **realizadas, int id);
+void ConsultarTarea(Nodo *pendientes, Nodo *realizadas);
+void LiberarMemoria(Nodo *lista);
 
 int main()
 {
@@ -90,15 +92,15 @@ int main()
         case 4:
             TransferirTarea(&pendientes, &realizadas);
             break;
-            // case 5:
-            //     ConsultarTarea(pendientes, realizadas);
-            //     break;
-            // case 0:
-            //     printf("Saliendo...\n");
-            //     break;
-            // default:
-            //     printf("Opción no válida.\n");
-            //     break;
+        case 5:
+            ConsultarTarea(pendientes, realizadas);
+            break;
+        case 0:
+            printf("Saliendo...\n");
+            break;
+        default:
+            printf("Opción no válida.\n");
+            break;
         }
     } while (opcion != 0);
 
@@ -157,6 +159,9 @@ int main()
     // }
 
     // free(cliente);
+
+    LiberarMemoria(pendientes);
+    LiberarMemoria(realizadas);
 
     return 0;
 }
@@ -232,6 +237,57 @@ void TransferirTarea(Nodo **pendientes, Nodo **realizadas)
     printf("Ingrese la id de la tarea para marcarla como realizada\n");
     scanf("%d", &id);
     MarcarTareaComoRealizada(pendientes, realizadas, id);
+}
+
+void ConsultarTarea(Nodo *pendientes, Nodo *realizadas)
+{
+    char busqueda[50];
+    printf("Ingrese el ID o palabra de busqueda\n");
+    fflush(stdin);
+    gets(busqueda);
+
+    int idEncontrado = atoi(busqueda);
+    int encontrada = 0;
+    Nodo *aux = pendientes;
+
+    while (aux != NULL)
+    {
+        if (aux->T.TareaID == idEncontrado || strstr(aux->T.Descripcion, busqueda) != NULL)
+        {
+            printf("Tarea encontrada en pendientes.\n");
+            printf("Tarea de ID: %d, Duracion: %d, y descripcion: %s\n", aux->T.TareaID, aux->T.Duracion, aux->T.Descripcion);
+            encontrada = 1;
+        }
+        aux = aux->Siguiente;
+    }
+    aux = realizadas;
+
+    while (aux != NULL)
+    {
+        if (aux->T.TareaID == idEncontrado || strstr(aux->T.Descripcion, busqueda) != NULL)
+        {
+            printf("Tarea encontrada en realizadas.\n");
+            printf("Tarea de ID: %d, Duracion: %d, y descripcion: %s\n", aux->T.TareaID, aux->T.Duracion, aux->T.Descripcion);
+            encontrada = 1;
+        }
+        aux = aux->Siguiente;
+    }
+
+    if (!encontrada)
+    {
+        printf("No se encontro ninguna tarea con ese ID o palabra clave.\n");
+    }
+}
+
+void LiberarMemoria(Nodo *lista){
+    while (lista != NULL)
+    {
+        Nodo *aux = lista;
+        lista = lista->Siguiente;
+        free(aux->T.Descripcion);
+        free(aux);
+    }
+    
 }
 
 float CostoTotalDeUnProducto(Producto p)
